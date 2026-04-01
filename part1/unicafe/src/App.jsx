@@ -9,7 +9,21 @@ const Header = (props) => {
 
 const Button = ({name, onClick}) => <button onClick={onClick}>{name}</button>
 
-const StatisticLine = ({text, value}) => <p>{text} {value}</p>
+const StatisticLine = ({text, value}) => <><td>{text}</td><td>{value}</td></>
+
+const StatisticsTable = ({stats}) =>{
+    return (
+        <table>
+            <tbody>
+                {stats.map((item, index) => (
+                    <tr key={index}>
+                        <StatisticLine text={item.text}  value={item.value} />
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    )
+}
 
 const Feedback = ({onGood, onNeutral, onBad}) => {
 
@@ -37,16 +51,20 @@ const Statistics = ({good, neutral, bad}) => {
 
     let avg = all > 0 ? (good-bad)/all : 0
     let positive = all > 0 ? (good)/all : 0
+    let stats = [
+        {text:"good", value: good },
+        {text:"neutral", value: neutral},
+        {text:"bad", value: neutral},
+        {text:"all", value: all },
+        {text:"average", value: avg},
+        {text:"positive", value: positive*100+"%" },
+
+    ]
     
     return (
         <>
             <Header name="statistics" />
-            <StatisticLine text="good" value={good} />
-            <StatisticLine text="neutral" value={neutral} />
-            <StatisticLine text="bad" value={bad} />
-            <StatisticLine text="all" value={all} />
-            <StatisticLine text="average" value={avg} />
-            <StatisticLine text="positive" value={positive*100+"%"} />
+            <StatisticsTable stats={stats} />
         </>
     )
 }
