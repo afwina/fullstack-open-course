@@ -24,13 +24,19 @@ const Feedback = ({onGood, onNeutral, onBad}) => {
 }
 
 const Stats = ({good, neutral, bad}) => {
-
+    let all = good+neutral+bad
+    let avg = all > 0 ? (good-bad)/all : 0
+    let positive = all > 0 ? (good)/all : 0
+    
     return (
         <>
             <Header course="statistics" />
             <Stat name="good" count={good} />
             <Stat name="neutral" count={neutral} />
             <Stat name="bad" count={bad} />
+            <Stat name="all" count={all} />
+            <Stat name="average" count={avg} />
+            <Stat name="positive" count={positive*100+"%"} />
         </>
     )
 }
