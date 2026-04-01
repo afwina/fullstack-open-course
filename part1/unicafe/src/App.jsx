@@ -23,7 +23,7 @@ const Feedback = ({onGood, onNeutral, onBad}) => {
     )
 }
 
-const Stats = ({good, neutral, bad}) => {
+const Statistics = ({good, neutral, bad}) => {
     let all = good+neutral+bad
     let avg = all > 0 ? (good-bad)/all : 0
     let positive = all > 0 ? (good)/all : 0
@@ -51,7 +51,7 @@ const App = () => {
     return (
         <div>
             <Feedback onGood={()=>setGood(good+1)} onNeutral={()=>setNeutral(neutral+1)} onBad={()=>setBad(bad+1)} />
-            <Stats good={good} neutral={neutral} bad={bad}/>
+            <Statistics good={good} neutral={neutral} bad={bad}/>
         </div>
     )
 }
