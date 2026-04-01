@@ -3,7 +3,7 @@ import { useState } from 'react';
 const Header = (props) => {
 
   return (
-      <h1>{props.course}</h1>
+      <h1>{props.name}</h1>
   )
 }
 
@@ -15,7 +15,7 @@ const Feedback = ({onGood, onNeutral, onBad}) => {
 
     return (
         <>
-            <Header course="give Feedback" />
+            <Header name="give Feedback" />
             <Button name="good" onClick={onGood} />
             <Button name="neutral" onClick={onNeutral} />
             <Button name="bad" onClick={onBad} />
@@ -24,13 +24,23 @@ const Feedback = ({onGood, onNeutral, onBad}) => {
 }
 
 const Statistics = ({good, neutral, bad}) => {
+
     let all = good+neutral+bad
+
+    if (all === 0){
+        return (
+        <>
+            <Header name="statistics" />
+            <p>No feedback given</p>
+        </>)
+    }
+
     let avg = all > 0 ? (good-bad)/all : 0
     let positive = all > 0 ? (good)/all : 0
     
     return (
         <>
-            <Header course="statistics" />
+            <Header name="statistics" />
             <Stat name="good" count={good} />
             <Stat name="neutral" count={neutral} />
             <Stat name="bad" count={bad} />
