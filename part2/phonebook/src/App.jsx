@@ -3,10 +3,12 @@ import Input from "./components/Input.jsx";
 import Numbers from "./components/Numbers.jsx";
 import PersonForm from "./components/PersonForm.jsx";
 import personsService from './services/persons.js'
+import Notification from "./components/Notification.jsx";
 
 const App = () => {
     const [persons, setPersons] = useState([])
     const [filter, setFilter] = useState('')
+    const[msg, setMsg] = useState(null)
 
     useEffect(() => {
         personsService.getAll()
@@ -25,6 +27,10 @@ const App = () => {
                     .then(data => {
                         setPersons(persons.map(p => p.id === dupePerson.id ? data : p))
                     })
+                    .catch(() =>{
+                        setMsg({text:`Information of ${dupePerson.name} has already been removed from server`, isError: true})
+                        setPersons(persons.filter(p => p.id !==dupePerson.id))
+                    })
             }
             return
         }
@@ -32,6 +38,7 @@ const App = () => {
         personsService.create(newPerson)
             .then(data => {
                 setPersons(persons.concat(data))
+                setMsg({text:`Added ${newName}`, isError: false})
             })
     }
 
@@ -39,12 +46,17 @@ const App = () => {
         if (window.confirm(`Delete ${name}?`)){
             personsService.deletePerson(id)
                 .then(()=>setPersons(persons.filter(p => p.id !==id)))
+                .catch(() => {
+                    setMsg({text:`Information of ${dupePerson.name} has already been removed from server`, isError: true})
+                    setPersons(persons.filter(p => p.id !==id))
+                })
         }
     }
 
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={msg} />
             <Input text={"filter shown with"} val={filter} onChange={setFilter}/>
             <h3>Add a new</h3>
             <PersonForm addName={addName}/>

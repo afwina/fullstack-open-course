@@ -6,14 +6,9 @@
       "id": "4"
     },
     {
-      "name": "b",
-      "number": "234124",
-      "id": "NsXzL9srncQ"
-    },
-    {
-      "name": "abc",
+      "name": "1bc",
       "number": "123",
-      "id": "hW0JVMIRPu4"
+      "id": "D90dRMqA-Lg"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
