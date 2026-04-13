@@ -27,9 +27,8 @@ const App = () => {
                     .then(data => {
                         setPersons(persons.map(p => p.id === dupePerson.id ? data : p))
                     })
-                    .catch(() =>{
-                        setMsg({text:`Information of ${dupePerson.name} has already been removed from server`, isError: true})
-                        setPersons(persons.filter(p => p.id !==dupePerson.id))
+                    .catch((err) =>{
+                        setMsg({text:`Error: ${err.response.data.error}`, isError: true})
                     })
             }
             return
@@ -39,6 +38,9 @@ const App = () => {
             .then(data => {
                 setPersons(persons.concat(data))
                 setMsg({text:`Added ${newName}`, isError: false})
+            })
+            .catch(err =>{
+                setMsg({text:`Error: ${err.response.data.error}`, isError: true})
             })
     }
 
