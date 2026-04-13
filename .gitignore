@@ -6,3 +6,4 @@ part1/part1/
 .idea/.name
 part3/phonebook/node_modules/
 part3/backend/node_modules/
+part3/phonebook/.env

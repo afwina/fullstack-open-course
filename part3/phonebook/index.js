@@ -1,67 +1,54 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const Person = require("./models/person")
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT
 
+app.use(express.static('dist'))
 app.use(express.json())
-
 morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
-app.use(express.static('dist'))
-
-let persons = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then((persons) => {
+        res.json(persons)
+    })
 })
 
 app.get('/info', (req, res) => {
-    res.send(`<p>Phonebook has in for ${persons.length} people</p><p>${new Date()}</p>`)
+    Person.countDocuments({})
+        .then((count) => {
+            res.send(`<p>Phonebook has info for ${count} people</p><p>${new Date()}</p>`)
+        })
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
-    const person = persons.find(p => p.id === id)
-    if (person){
-        res.json(person)
-    } else{
-        res.status(404).end()
-    }
+    Person.findById(id)
+        .then((person) => {
+            if (person) {
+                res.json(person)
+            } else{
+                res.status(404).end()
+            }
+        })
+        .catch((err) => {
+            next(err)
+        })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
-    persons = persons.filter(p => p.id !== id)
-    res.status(204).end()
+    Person.findByIdAndDelete(id)
+        .then(() => {
+            res.status(204).end()
+        })
+        .catch((err) => {next(err)})
 })
 
-const generateId = () => {
-    return Math.floor(Math.random() * 999999999)
-}
-
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body
 
     if (!body.name) {
@@ -76,23 +63,55 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    if (persons.find(p => p.name === body.name)) {
-        return res.status(400).json({
-            error: 'name must be unique'
-        })
-    }
-
-    let person = {
+    const person = new Person({
         name: body.name,
         number: body["number"],
-        id: generateId(),
-    }
+    })
 
-    persons = persons.concat(person)
-
-    res.json(person)
+    person.save()
+        .then(person => {
+            res.json(person)
+        })
+        .catch((err) => {next(err)})
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id
+    const number = req.body.number
+    const name = req.body.name
+
+    Person.findById(id)
+        .then((person) => {
+            if (person){
+                person.number = number
+                person.name = name
+                return person.save().then((updated)=>{
+                    res.json(updated)
+                })
+                    .catch((err)=> next(err))
+            } else {
+                return res.status(404).end()
+            }
+        })
+        .catch((err)=> next(err))
+})
+
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+app.use(errorHandler)
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
